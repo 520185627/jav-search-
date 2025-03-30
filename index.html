@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>JAV 番号检索站</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; background: #1c1c1c; color: #fff; padding: 1rem; }
+    input, button { padding: 0.5rem; margin-top: 1rem; width: 100%; border-radius: 5px; border: none; }
+    button { background: #ff3366; color: #fff; cursor: pointer; }
+    .result { margin-top: 2rem; }
+    .card { background: #2a2a2a; padding: 1rem; border-radius: 10px; margin-bottom: 1rem; }
+    img { width: 100%; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <h2>番号搜索</h2>
+  <input id="keyword" placeholder="输入番号/女优名 (例：SSNI, 三上悠亚)"/>
+  <button onclick="searchJAV()">搜索</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    async function searchJAV() {
+      const kw = document.getElementById('keyword').value;
+      const res = document.getElementById('result');
+      res.innerHTML = '搜索中...';
+
+      try {
+        const r = await fetch(`https://javapi.plex.so/api/v1/search/${encodeURIComponent(kw)}`);
+        const data = await r.json();
+
+        if (!data || !data.length) {
+          res.innerHTML = '未找到相关番号';
+          return;
+        }
+
+        res.innerHTML = '';
+        data.slice(0, 5).forEach(item => {
+          res.innerHTML += `
+            <div class="card">
+              <strong>${item.title}</strong><br/>
+              <img src="${item.cover}" alt="封面"/><br/>
+              <p>番号: ${item.code}</p>
+              <p>女优: ${item.actresses.join(', ')}</p>
+              <a href="https://javgg.net/search/${item.code}" target="_blank">磁力链接</a>
+            </div>
+          `;
+        });
+      } catch (e) {
+        res.innerHTML = '搜索失败，请稍后再试';
+      }
+    }
+  </script>
+</body>
+</html>
