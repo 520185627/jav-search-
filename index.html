@@ -60,3 +60,116 @@
 搜索 
 
 let allFiles = []; document.getElementById('fileInput').addEventListener('change', (e) => { allFiles = Array.from(e.target.files); }); function search() { const keyword = document.getElementById('keyword').value.trim().toLowerCase(); const res = document.getElementById('result'); const matched = allFiles.filter(file => file.name.toLowerCase().includes(keyword)); res.innerHTML = matched.map(file => { let url = URL.createObjectURL(file); let ext = file.name.split('.').pop().toLowerCase(); let thumb = ''; if (["jpg", "png", "jpeg", "gif", "webp"].includes(ext)) { thumb = `<img src="${url}" class="file-thumb" alt="img">`; } else if (["pdf"].includes(ext)) { thumb = `<img src="https://img.icons8.com/fluency/48/pdf.png" class="file-thumb">`; } else if (["txt", "md"].includes(ext)) { thumb = `<img src="https://img.icons8.com/fluency/48/txt.png" class="file-thumb">`; } else if (["mp4", "mov", "avi"].includes(ext)) { thumb = `<img src="https://img.icons8.com/fluency/48/video-file.png" class="file-thumb">`; } else { thumb = `<img src="https://img.icons8.com/fluency/48/file.png" class="file-thumb">`; } return `<div class="file-card"> ${thumb} <div class="file-info"> <strong>${file.name}</strong><br> ${(file.size / 1024).toFixed(1)} KB </div> </div>`; }).join(''); } 
+<!DOCTYPE html><html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>神器：本地文件搜索</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: white;
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 20px;
+    }
+    input[type="file"], input[type="text"] {
+      padding: 5px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+    }
+    .category {
+      margin-top: 20px;
+    }
+    .file-card {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 5px;
+      background: #1e1e1e;
+      border-radius: 5px;
+    }
+    .file-thumb {
+      width: 32px;
+      height: 32px;
+      object-fit: contain;
+      margin-right: 10px;
+    }
+    .file-info {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>神器：本地文件搜索（自动类型分组）</h1>
+  <input type="file" id="fileInput" webkitdirectory directory multiple />
+  <input type="text" id="keyword" placeholder="关键词过滤" />
+  <button onclick="search()">搜索</button>  <div id="result"></div>  <script>
+    let allFiles = [];
+
+    document.getElementById('fileInput').addEventListener('change', (e) => {
+      allFiles = Array.from(e.target.files);
+    });
+
+    function search() {
+      const keyword = document.getElementById('keyword').value.trim().toLowerCase();
+      const res = document.getElementById('result');
+      const matched = allFiles.filter(file => file.name.toLowerCase().includes(keyword));
+
+      const groups = {
+        image: [],
+        video: [],
+        document: [],
+        other: []
+      };
+
+      matched.forEach(file => {
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
+          groups.image.push(file);
+        } else if (["mp4", "avi", "mov"].includes(ext)) {
+          groups.video.push(file);
+        } else if (["pdf", "doc", "docx", "txt", "md"].includes(ext)) {
+          groups.document.push(file);
+        } else {
+          groups.other.push(file);
+        }
+      });
+
+      const renderGroup = (title, files) => {
+        if (!files.length) return '';
+        return `
+          <div class="category">
+            <h2>${title}</h2>
+            ${files.map(file => {
+              let url = URL.createObjectURL(file);
+              let ext = file.name.split('.').pop().toLowerCase();
+              let thumb = '';
+              if (["jpg", "jpeg", "png", "webp", "gif"].includes(ext)) {
+                thumb = `<img src="${url}" class="file-thumb" alt="缩略图">`;
+              } else if (["pdf"].includes(ext)) {
+                thumb = `<img src="https://img.icons8.com/fluency/48/pdf.png" class="file-thumb">`;
+              } else if (["txt", "md"].includes(ext)) {
+                thumb = `<img src="https://img.icons8.com/fluency/48/txt.png" class="file-thumb">`;
+              } else if (["mp4", "avi", "mov"].includes(ext)) {
+                thumb = `<img src="https://img.icons8.com/fluency/48/video-file.png" class="file-thumb">`;
+              } else {
+                thumb = `<img src="https://img.icons8.com/fluency/48/file.png" class="file-thumb">`;
+              }
+              return `<div class="file-card">${thumb}<div class="file-info"><strong>${file.name}</strong><br>${(file.size / 1024).toFixed(1)} KB</div></div>`;
+            }).join('')}
+          </div>
+        `;
+      };
+
+      res.innerHTML =
+        renderGroup('图片', groups.image) +
+        renderGroup('视频', groups.video) +
+        renderGroup('文档', groups.document) +
+        renderGroup('其他', groups.other);
+    }
+  </script></body>
+</html>
