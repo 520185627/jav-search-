@@ -53,4 +53,10 @@
     }
   </script>
 </body>
-</html>
+</html>神器：本地文件搜索 body { background: #111; color: #eee; font-family: sans-serif; padding: 1em; } .file-card { background: #222; margin: 10px 0; padding: 10px; border-radius: 8px; display: flex; align-items: center; } .file-thumb { width: 48px; height: 48px; margin-right: 10px; object-fit: cover; border-radius: 4px; } .file-info { flex: 1; } input[type="text"] { padding: 5px; border-radius: 4px; border: none; } 
+
+神器：本地文件搜索（含封面缩略图）
+
+搜索 
+
+let allFiles = []; document.getElementById('fileInput').addEventListener('change', (e) => { allFiles = Array.from(e.target.files); }); function search() { const keyword = document.getElementById('keyword').value.trim().toLowerCase(); const res = document.getElementById('result'); const matched = allFiles.filter(file => file.name.toLowerCase().includes(keyword)); res.innerHTML = matched.map(file => { let url = URL.createObjectURL(file); let ext = file.name.split('.').pop().toLowerCase(); let thumb = ''; if (["jpg", "png", "jpeg", "gif", "webp"].includes(ext)) { thumb = `<img src="${url}" class="file-thumb" alt="img">`; } else if (["pdf"].includes(ext)) { thumb = `<img src="https://img.icons8.com/fluency/48/pdf.png" class="file-thumb">`; } else if (["txt", "md"].includes(ext)) { thumb = `<img src="https://img.icons8.com/fluency/48/txt.png" class="file-thumb">`; } else if (["mp4", "mov", "avi"].includes(ext)) { thumb = `<img src="https://img.icons8.com/fluency/48/video-file.png" class="file-thumb">`; } else { thumb = `<img src="https://img.icons8.com/fluency/48/file.png" class="file-thumb">`; } return `<div class="file-card"> ${thumb} <div class="file-info"> <strong>${file.name}</strong><br> ${(file.size / 1024).toFixed(1)} KB </div> </div>`; }).join(''); } 
